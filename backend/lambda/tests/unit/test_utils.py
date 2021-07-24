@@ -1,6 +1,6 @@
 import pytest
 
-from zoorl.urlshortener import compute_hash
+from zoorl.utils import compute_hash
 
 compute_hash_test_data = [
     ("http://www.google.com", "cKe4cZG"),
