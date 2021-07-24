@@ -11,8 +11,18 @@ class ShortenedUrlModel:
 class TimeToLiveThreshold(Enum):
     """Supported TTL thresholds"""
     ONE_DAY = 1
-    ONE_WEEK = 2
-    ONE_MONTH = 3
+    SEVEN_DAYS = 2
+    THIRTY_DAYS = 3
+
+    @staticmethod
+    def to_days(ttl_threshold) -> int:
+        """Convert the TTL threshold to the expected number of days"""
+        return {
+            TimeToLiveThreshold.ONE_DAY: 1,
+            TimeToLiveThreshold.SEVEN_DAYS: 7,
+            TimeToLiveThreshold.THIRTY_DAYS: 30
+        }.get(ttl_threshold, 1)
+
 
 class ApplicationException(Exception):
     pass
@@ -28,7 +38,7 @@ class ShortenedUrlRepository(ABC):
     def get_by_alias(self, alias: str) -> str:
         """Returns the alias for the given alias"""
         pass
-class ShortenedUrlRepositoryException(ApplicationException):
+class RepositoryException(ApplicationException):
     """Exception throws because of the errors in the repository layer"""
     pass
 

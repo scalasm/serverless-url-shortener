@@ -3,7 +3,7 @@ from botocore.exceptions import ClientError
 from zoorl.common import (
     ShortenedUrlRepository, 
     ShortenedUrlModel, 
-    ShortenedUrlRepositoryException
+    RepositoryException
 )
 
 class DynamoDBShortUrlRepository(ShortenedUrlRepository):
@@ -29,7 +29,7 @@ class DynamoDBShortUrlRepository(ShortenedUrlRepository):
             )
             print("GetItem succeeded: " + str(response))
         except ClientError as e:
-            raise ShortenedUrlRepositoryException(e.response['Error']['Message'])
+            raise RepositoryException(e.response['Error']['Message'])
         else:
             # If we found anything, let's return the URL or None
             item = response.get("Item", None)
