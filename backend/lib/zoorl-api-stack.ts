@@ -37,9 +37,10 @@ export class ZoorlAPIStack extends cdk.Stack {
       index: "zoorl/lambda.py", // optional, defaults to "index.py"
       handler: "handler", // optional, defaults to "handler"
       runtime: lambda.Runtime.PYTHON_3_8, // optional, defaults to lambda.Runtime.PYTHON_3_7
-      memorySize: 1024,
+      memorySize: 256,
       environment: {
-        "URLS_TABLE": urlsTable.tableName
+        "URLS_TABLE": urlsTable.tableName,
+        "HOST_DOMAIN_PREFIX": "https://zoorl.ly"
       }
     });
 
@@ -50,16 +51,11 @@ export class ZoorlAPIStack extends cdk.Stack {
 
     const urlShortenerApi = new apigateway.RestApi(this, "zoorl-api");
     // Map POST /u
-    const urlResource = urlShortenerApi.root.addResource("u");
+    const urlResource = urlShortenerApi.root //.root.addResource("u");
     urlResource.addMethod("POST", apiIntegration);
-    urlResource.addMethod("GET", apiIntegration);
 
-    // Map GET /u/{url_id}
-    const getUrlResource = urlResource.addResource("{url_id}");
+    // Map GET /u/{alias}
+    const getUrlResource = urlResource.addResource("{alias}");
     getUrlResource.addMethod("GET", apiIntegration);
-
-    new cdk.CfnOutput(this, "UrlShortenerApi.URL", {
-      value: urlShortenerApi.url
-    });
   }
 }
