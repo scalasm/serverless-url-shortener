@@ -19,6 +19,11 @@ export interface ZoorlAPIStackProps extends cdk.StackProps {
  * URL Shortener API stack.
  */
 export class ZoorlAPIStack extends cdk.Stack {
+  /**
+   * The URL of the API Gateway endpoint, for use in the integ tests
+   */
+   public readonly apiUrlOutput: cdk.CfnOutput;
+
   constructor(scope: cdk.Construct, id: string, props: ZoorlAPIStackProps) {
     super(scope, id, props);
 
@@ -65,6 +70,10 @@ export class ZoorlAPIStack extends cdk.Stack {
     const getUrlResource = urlResource.addResource("{alias}");
     getUrlResource.addMethod("GET", apiIntegration, {
       authorizationType: apigateway.AuthorizationType.NONE
+    });
+
+    this.apiUrlOutput = new cdk.CfnOutput(this, 'Url', {
+      value: urlShortenerApi.url
     });
   }
 }
