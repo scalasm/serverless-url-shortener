@@ -1,6 +1,4 @@
 import json
-import os
-import boto3
 
 from zoorl.common import (
     ApplicationException,
@@ -9,17 +7,17 @@ from zoorl.common import (
 ) 
 from zoorl.dynamodb_adapter import DynamoDBShortUrlRepository
 from zoorl.usecases import UrlShortenerService
+import zoorl.lambda_utils as lambda_utils
 
 # Get the service resource.
-dynamodb = boto3.resource("dynamodb")
+dynamodb = lambda_utils.get_dynamodb_client()
 
 # set environment variable
-TABLE_NAME = os.environ["URLS_TABLE"]
-HOST_DOMAIN_PREFIX = os.environ["HOST_DOMAIN_PREFIX"]
+TABLE_NAME = lambda_utils.get_env("URLS_TABLE")
+HOST_DOMAIN_PREFIX = lambda_utils.get_env("HOST_DOMAIN_PREFIX")
 
 def handler(event, context):
     print(json.dumps(event))
-#    print(json.dumps(context))
 
     table = dynamodb.Table(TABLE_NAME)
 
@@ -40,11 +38,11 @@ def handler(event, context):
             })
         }   
 
-def handle_redirect(event, context, service):
-    alias = event["pathParameters"]["alias"]
+def handle_redirect(event, context, service: UrlShortenerService) -> dict:
+    alias = lambda_utils.get_path_parameter(event, "alias")
     long_url = service.get_long_url_by_alias(alias)
 
-    print( f"Redirecting to mapped URL: {alias} --> {long_url}" )
+    print(f"Redirecting to mapped URL: {alias} --> {long_url}")
 
     return {
         "statusCode": 301,
@@ -53,15 +51,15 @@ def handle_redirect(event, context, service):
         }
     }    
 
-def handle_create_alias(event, context, service):
-    json_body = json.loads(event["body"])
+def handle_create_alias(event, context, service: UrlShortenerService) -> dict:
+    json_body = lambda_utils.get_json_body(event)
 
     url = json_body["url"]
 
     alias = service.shorten_url(url, TimeToLiveThreshold.ONE_DAY)
     short_url = f"{HOST_DOMAIN_PREFIX}/{alias}"
 
-    print( f"Aliasing URL: {short_url} --> {url}" )
+    print(f"Aliasing URL: {short_url} --> {url}")
 
     return {
         "statusCode": 200,
