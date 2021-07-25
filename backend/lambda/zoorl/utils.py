@@ -6,12 +6,8 @@ from zoorl.common import TimeToLiveThreshold
 
 def compute_ttl(ttl_threshold: TimeToLiveThreshold) -> int:
     """Compute the UNIX epoch time from now according to the specified threshold"""
-    now = datetime.now()
-    days_from_now = {
-        TimeToLiveThreshold.ONE_DAY: 1,
-        TimeToLiveThreshold.ONE_WEEK: 7,
-        TimeToLiveThreshold.ONE_MONTH: 30
-    }.get(ttl_threshold)
+    now = get_now()
+    days_from_now = TimeToLiveThreshold.to_days(ttl_threshold)
 
     time_delta = timedelta(days=days_from_now)
     ttl_date = now + time_delta
@@ -31,3 +27,7 @@ def to_base_62(some_number: int) -> str:
        hash_str = s[some_number % 62] + hash_str
        some_number //= 62
     return hash_str
+
+def get_now() -> datetime:
+    """Compute this instant (this is needed for testing, since we cannot mock datetime built-in type)"""
+    return datetime.now()

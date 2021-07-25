@@ -34,7 +34,7 @@ export class ZoorlAPIStack extends cdk.Stack {
 
     const urlShortenerFunction = new pylambda.PythonFunction(this, "UrlShortenerFunction", {
       entry: "lambda", // required
-      index: "zoorl/lambda.py", // optional, defaults to "index.py"
+      index: "zoorl/lambda_port.py", // optional, defaults to "index.py"
       handler: "handler", // optional, defaults to "handler"
       runtime: lambda.Runtime.PYTHON_3_8, // optional, defaults to lambda.Runtime.PYTHON_3_7
       memorySize: 256,
@@ -47,15 +47,24 @@ export class ZoorlAPIStack extends cdk.Stack {
     // enable the Lambda function to access the DynamoDB table (using IAM)
     urlsTable.grantFullAccess(urlShortenerFunction);
 
+    const auth = new apigateway.CognitoUserPoolsAuthorizer(this, "UrlShortenerFunctionAuthorizer", {
+      cognitoUserPools: [ props.userPool ]
+    } );
+
     const apiIntegration = new apigateway.LambdaIntegration(urlShortenerFunction);
 
     const urlShortenerApi = new apigateway.RestApi(this, "zoorl-api");
     // Map POST /u
     const urlResource = urlShortenerApi.root //.root.addResource("u");
-    urlResource.addMethod("POST", apiIntegration);
+    urlResource.addMethod("POST", apiIntegration, {
+      authorizer: auth,
+      authorizationType: apigateway.AuthorizationType.COGNITO
+    });
 
     // Map GET /u/{alias}
     const getUrlResource = urlResource.addResource("{alias}");
-    getUrlResource.addMethod("GET", apiIntegration);
+    getUrlResource.addMethod("GET", apiIntegration, {
+      authorizationType: apigateway.AuthorizationType.NONE
+    });
   }
 }
