@@ -14,7 +14,6 @@ dynamodb = lambda_utils.get_dynamodb_client()
 
 # set environment variable
 TABLE_NAME = lambda_utils.get_env("URLS_TABLE")
-HOST_DOMAIN_PREFIX = lambda_utils.get_env("HOST_DOMAIN_PREFIX")
 
 def handler(event, context):
     print(json.dumps(event))
@@ -22,7 +21,7 @@ def handler(event, context):
     table = dynamodb.Table(TABLE_NAME)
 
     repository = DynamoDBShortUrlRepository(table)
-    config = UrlShortenerServiceConfig(HOST_DOMAIN_PREFIX)
+    config = UrlShortenerServiceConfig("unsused")
     service = UrlShortenerService(repository, config)
 
     try:
@@ -53,11 +52,14 @@ def handle_redirect(event, context, service: UrlShortenerService) -> dict:
 
 def handle_create_alias(event, context, service: UrlShortenerService) -> dict:
     json_body = lambda_utils.get_json_body(event)
-
     url = json_body["url"]
 
     alias = service.shorten_url(url, TimeToLiveThreshold.ONE_DAY)
-    short_url = f"{HOST_DOMAIN_PREFIX}/{alias}"
+
+    protocol = event["headers"]["X-Forwarded-Proto"]
+    domainName = event["requestContext"]["domainName"]
+    path = event["requestContext"]["path"] # /prod
+    short_url = f"{protocol}://{domainName}{path}{alias}"
 
     print(f"Aliasing URL: {short_url} --> {url}")
 

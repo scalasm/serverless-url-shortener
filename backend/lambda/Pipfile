@@ -5,12 +5,15 @@ name = "pypi"
 
 [packages]
 boto3 = "*"
+flake8 = "*"
 
 [dev-packages]
 pytest = "*"
 pytest-icdiff = "*"
 pylint = "*"
 pytest-mock = "*"
+requests = "*"
+flake8 = "*"
 
 [requires]
 python_version = "3.8"

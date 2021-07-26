@@ -61,18 +61,8 @@ export class ZoorlPipelineStack extends Stack {
     });
     const preprodStage = pipeline.addApplicationStage(preprod);
     preprodStage.addActions(new ShellScriptAction({
-      rolePolicyStatements: [
-        new iam.PolicyStatement({
-          resources: ["*"],
-          actions: [
-            "cognito-idp:AdminCreateUser",
-            "cognito-idp:AdminDeleteUser",
-            "cognito-idp:AdminSetUserPassword",
-            "cognito-idp:AdminInitiateAuth"
-          ],
-        })
-      ],
       actionName: "RunAcceptanceTests",
+      // Acceptance tests code is in the ... source code, so we need the pipeline to unzip it for us in the working folder :)
       additionalArtifacts: [
         sourceArtifact
       ],
@@ -85,14 +75,24 @@ export class ZoorlPipelineStack extends Stack {
         USER_POOL_CLIENT_ID: pipeline.stackOutput(preprod.userPoolClientIdOutput),
       },
       commands: [
-        // Use "curl" to GET the given URL and fail if it returns an error
-//        "curl -Ssf $ENDPOINT_URL",
         "python --version",
-        "cd backend",
-        "./acceptance-testing/create-test-user.sh",
-        "./acceptance-testing/test-create-url-alias.sh",
-        "./acceptance-testing/delete-test-user.sh"
+        "pipenv --version",
+        "cd backend/lambda",
+        "pipenv install",
+        "pipenv run pytest tests/acceptance/"
       ],
+      rolePolicyStatements: [
+        // Allow for creating / destroying / authenticating test users 
+        new iam.PolicyStatement({
+          resources: ["*"],
+          actions: [
+            "cognito-idp:AdminCreateUser",
+            "cognito-idp:AdminDeleteUser",
+            "cognito-idp:AdminSetUserPassword",
+            "cognito-idp:AdminInitiateAuth"
+          ],
+        })
+      ]
     }));
   }
 }

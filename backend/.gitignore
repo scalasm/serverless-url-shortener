@@ -9,3 +9,4 @@ cdk.out
 
 # Python
 __pycache__
+.env
