@@ -44,8 +44,7 @@ export class ZoorlAPIStack extends cdk.Stack {
       runtime: lambda.Runtime.PYTHON_3_8, // optional, defaults to lambda.Runtime.PYTHON_3_7
       memorySize: 256,
       environment: {
-        "URLS_TABLE": urlsTable.tableName,
-        "HOST_DOMAIN_PREFIX": "https://zoorl.ly"
+        "URLS_TABLE": urlsTable.tableName
       }
     });
 

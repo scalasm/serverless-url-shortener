@@ -24,7 +24,7 @@ export class ZoorlPipelineStack extends Stack {
 
     const pipeline = new CdkPipeline(this, "CICDPipeline", {
       // DO NOT COMMIT: it's only for local testing!
-      selfMutating: false,
+      selfMutating: true,
 
       // The pipeline name
       pipelineName: "ZoorlPipeline",
