@@ -6,7 +6,6 @@ import * as cognito from "@aws-cdk/aws-cognito";
  * Shared resources across stacks.
  */
 export class SharedStack extends cdk.Stack {
-
     public readonly userPool: cognito.UserPool;
 
     public readonly userPoolClient: cognito.UserPoolClient;
@@ -37,16 +36,6 @@ export class SharedStack extends cdk.Stack {
                 clientId: this.userPoolClient.userPoolClientId,
                 providerName: this.userPool.userPoolProviderName
             }]
-        });
-
-        new cdk.CfnOutput(this, "IdentityPoolId", {
-            value: this.identityPool.ref || ''
-        });
-        new cdk.CfnOutput(this, "UserPoolClientId", {
-            value: this.userPoolClient.userPoolClientId || ''
-        });
-        new cdk.CfnOutput(this, "UserPoolId", {
-            value: this.userPool.userPoolId || ''
         });
     }
 }

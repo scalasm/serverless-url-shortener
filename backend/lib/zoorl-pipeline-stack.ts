@@ -1,8 +1,8 @@
-import * as codepipeline from '@aws-cdk/aws-codepipeline';
-import * as codepipeline_actions from '@aws-cdk/aws-codepipeline-actions';
-import { Construct, Environment, SecretValue, Stack, StackProps, StageProps } from '@aws-cdk/core';
+import * as codepipeline from "@aws-cdk/aws-codepipeline";
+import * as codepipeline_actions from "@aws-cdk/aws-codepipeline-actions";
+import { Construct, Environment, SecretValue, Stack, StackProps, StageProps } from "@aws-cdk/core";
 import { CdkPipeline, SimpleSynthAction, ShellScriptAction, AddStageOptions } from "@aws-cdk/pipelines";
-import { ZoorlApplicationStage } from './zoorl-application-stage';
+import { ZoorlApplicationStage } from "./zoorl-application-stage";
 
 /**
  * Configuration properties for the pipeline stack.
@@ -21,19 +21,19 @@ export class ZoorlPipelineStack extends Stack {
     const sourceArtifact = new codepipeline.Artifact();
     const cloudAssemblyArtifact = new codepipeline.Artifact();
 
-    const pipeline = new CdkPipeline(this, 'CICDPipeline', {
+    const pipeline = new CdkPipeline(this, "CICDPipeline", {
       // The pipeline name
-      pipelineName: 'ZoorlPipeline',
+      pipelineName: "ZoorlPipeline",
       cloudAssemblyArtifact,
 
       // Where the source can be found
       sourceAction: new codepipeline_actions.GitHubSourceAction({
-        actionName: 'GitHub',
+        actionName: "GitHub",
         output: sourceArtifact,
-        oauthToken: SecretValue.secretsManager('github-token'),
-        owner: 'scalasm',
-        repo: 'serverless-url-shortener',
-        branch: 'features/zoorl-2',
+        oauthToken: SecretValue.secretsManager("github-token"),
+        owner: "scalasm",
+        repo: "serverless-url-shortener",
+        branch: "features/zoorl-2",
       }),
 
       // How it will be built and synthesized
@@ -47,28 +47,35 @@ export class ZoorlPipelineStack extends Stack {
         },
         subdirectory: "backend",
         // For Typescript-based Lambdas We need a build step for traspiling
-        buildCommand: 'npm run build',
+        buildCommand: "npm run build",
       })
     });
 
     // This is where we add the application stages
-    const preprod = new ZoorlApplicationStage(this, 'PreProd', {
+    const preprod = new ZoorlApplicationStage(this, "PreProd", {
       env: props.preprodEnv
     });
     const preprodStage = pipeline.addApplicationStage(preprod, {
-    
+      
     });
     preprodStage.addActions(new ShellScriptAction({
-      actionName: 'TestService',
+      actionName: "RunAcceptanceTests",
       useOutputs: {
         // Get the stack Output from the Stage and make it available in
         // the shell script as $ENDPOINT_URL.
-        ENDPOINT_URL: pipeline.stackOutput(preprod.apiUrlOutput)
+        ENDPOINT_URL: pipeline.stackOutput(preprod.apiUrlOutput),
+        TARGET_AWS_REGION: pipeline.stackOutput(preprod.regionOutput),
+        USER_POOL_ID: pipeline.stackOutput(preprod.userPoolIdOutput),
+        USER_POOL_CLIENT_ID: pipeline.stackOutput(preprod.userPoolIdOutput),
       },
       commands: [
-        // Use 'curl' to GET the given URL and fail if it returns an error
-//        'curl -Ssf $ENDPOINT_URL',
-        'echo $ENDPOINT_URL',
+        // Use "curl" to GET the given URL and fail if it returns an error
+//        "curl -Ssf $ENDPOINT_URL",
+        "pwd",
+        "jq",
+        "./acceptance-testing/create-test-user.sh",
+        "./acceptance-testing/test-create-url-alias.sh",
+        "./acceptance-testing/delete-test-user.sh"
       ],
     }));
   }
