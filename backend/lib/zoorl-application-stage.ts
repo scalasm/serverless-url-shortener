@@ -1,6 +1,6 @@
-import { CfnOutput, Construct, Stage, StageProps } from '@aws-cdk/core';
-import { SharedStack } from './shared-stack';
-import { ZoorlAPIStack } from './zoorl-api-stack';
+import { CfnOutput, Construct, Stage, StageProps } from "@aws-cdk/core";
+import { SharedStack } from "./shared-stack";
+import { ZoorlAPIStack } from "./zoorl-api-stack";
 
 /**
  * Deployable unit collecting all required stacks for our application (e.g., frontend and backend in dev/prod environments).
@@ -18,7 +18,7 @@ export class ZoorlApplicationStage extends Stage {
 
     const sharedStack = new SharedStack(this, "zoorl-shared-stack")
 
-    const apiStack = new ZoorlAPIStack(this, 'zoorl-api-stack', {
+    const apiStack = new ZoorlAPIStack(this, "zoorl-api-stack", {
         userPool: sharedStack.userPool,
         userPoolClient: sharedStack.userPoolClient
     });
@@ -26,18 +26,10 @@ export class ZoorlApplicationStage extends Stage {
     // Expose application details for this stage: API URL and auth
     this.apiUrlOutput = apiStack.apiUrlOutput;
 
-    this.identityPoolIdOutput = new CfnOutput(this, "IdentityPoolId", {
-      value: sharedStack.identityPool.ref || ''
-    });
-    this.userPoolClientIdOutput = new CfnOutput(this, "UserPoolClientId", {
-        value: sharedStack.userPoolClient.userPoolClientId || ''
-    });
-    this.userPoolIdOutput = new CfnOutput(this, "UserPoolId", {
-        value: sharedStack.userPool.userPoolId || ''
-    });
+    this.identityPoolIdOutput = sharedStack.identityPoolIdOutput;
+    this.userPoolClientIdOutput = sharedStack.userPoolClientIdOutput;
+    this.userPoolIdOutput = sharedStack.userPoolIdOutput;
 
-    this.regionOutput = new CfnOutput(this, "Region", {
-      value: this.region || ''
-  });
+    this.regionOutput = sharedStack.regionOutput;
   }
 }
