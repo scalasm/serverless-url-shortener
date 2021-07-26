@@ -9,6 +9,7 @@ export class ZoorlApplicationStage extends Stage {
   public readonly apiUrlOutput: CfnOutput;
   
   public readonly userPoolIdOutput: CfnOutput;
+  public readonly userPoolArnOutput: CfnOutput;
   public readonly userPoolClientIdOutput: CfnOutput;
   public readonly identityPoolIdOutput: CfnOutput;
   public readonly regionOutput: CfnOutput;
@@ -29,6 +30,7 @@ export class ZoorlApplicationStage extends Stage {
     this.identityPoolIdOutput = sharedStack.identityPoolIdOutput;
     this.userPoolClientIdOutput = sharedStack.userPoolClientIdOutput;
     this.userPoolIdOutput = sharedStack.userPoolIdOutput;
+    this.userPoolArnOutput = sharedStack.userPoolArnOutput;
 
     this.regionOutput = sharedStack.regionOutput;
   }

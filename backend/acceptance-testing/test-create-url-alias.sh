@@ -6,6 +6,7 @@ set -e
 #ENDPOINT_URL=$1
 ID_TOKEN=$(cat /tmp/id_token.txt)
 
+echo "Creating URL alias ..."
+
 curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $ID_TOKEN" \
- -d @./acceptance-testing/data/test-create-url-alias.json $ENDPOINT_URL \
- --verbose
+ -d '{"url":"https://docs.aws.amazon.com/solutions/latest/constructs/welcome.html", "ttl": 1}' $ENDPOINT_URL

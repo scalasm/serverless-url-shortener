@@ -7,14 +7,14 @@ import * as cognito from "@aws-cdk/aws-cognito";
  */
 export class SharedStack extends cdk.Stack {
     public readonly userPool: cognito.UserPool;
-
     public readonly userPoolClient: cognito.UserPoolClient;
-
     public readonly identityPool: cognito.CfnIdentityPool;
 
     public readonly userPoolIdOutput: cdk.CfnOutput;
+    public readonly userPoolArnOutput: cdk.CfnOutput;
     public readonly userPoolClientIdOutput: cdk.CfnOutput;
     public readonly identityPoolIdOutput: cdk.CfnOutput;
+
     public readonly regionOutput: cdk.CfnOutput;
 
     constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -52,6 +52,9 @@ export class SharedStack extends cdk.Stack {
         });
         this.userPoolIdOutput = new cdk.CfnOutput(this, "UserPoolId", {
             value: this.userPool.userPoolId || ""
+        });
+        this.userPoolArnOutput = new cdk.CfnOutput(this, "UserPoolArn", {
+            value: this.userPool.userPoolArn || ""
         });
         this.regionOutput = new cdk.CfnOutput(this, "Region", {
             value: this.region || ""
