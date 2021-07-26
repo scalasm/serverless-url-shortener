@@ -23,6 +23,7 @@ create_alias_test_data = [
 def test_should_create_alias(test_url: str, ttl: int) -> None:
     id_token = _get_id_token()
 
+    print(f"Creating alias for {test_url} ...")
     response = requests.post(
         headers = {
            "Content-Type": "application/json",
@@ -41,12 +42,17 @@ def test_should_create_alias(test_url: str, ttl: int) -> None:
     assert response_json["url"] == test_url
 
     alias_url = response_json["short_url"]
+
+    print(f"Verifying that {alias_url} redirects to {test_url} ...")
     redirect_response = requests.get(
         url=alias_url
     )
 
     assert redirect_response.status_code == 301
     assert redirect_response.headers["location"] == test_url
+
+    print("LGTM!")
+
 
 def _get_id_token() -> str:
     with open('/tmp/id_token.txt', 'r') as file:
