@@ -79,6 +79,7 @@ export class ZoorlPipelineStack extends Stack {
         "pipenv --version",
         "cd backend/lambda",
         "pipenv install",
+        "pipenv install --dev",
         "pipenv run pytest tests/acceptance/"
       ],
       rolePolicyStatements: [
