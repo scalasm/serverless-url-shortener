@@ -3,10 +3,9 @@ import requests
 import os
 import subprocess
 
-ENDPOINT_URL=os.environ["ENDPOINT_URL"]
 
 @pytest.fixture(scope="module", autouse=True)
-def test_user():
+def create_test_user():
     pwd = subprocess.run(['pwd'], stdout=subprocess.PIPE).stdout.decode('utf-8').strip()
     print(f"Running tests in {pwd}!")
     print("Creating test user ...")
@@ -15,11 +14,11 @@ def test_user():
     print("Deleting test user")
     os.system(f"{pwd}/tests/acceptance/support-scripts/delete-test-user.sh")
 
-create_alias_test_data = [
+create_should_create_alias = [
     ("https://docs.aws.amazon.com/solutions/latest/constructs/welcome.html", 1),
 ]
 
-@pytest.mark.parametrize("test_url,ttl", create_alias_test_data)
+@pytest.mark.parametrize("test_url,ttl", create_should_create_alias)
 def test_should_create_alias(test_url: str, ttl: int) -> None:
     id_token = _get_id_token()
 
@@ -29,7 +28,7 @@ def test_should_create_alias(test_url: str, ttl: int) -> None:
            "Content-Type": "application/json",
            "Authorization": f"Bearer {id_token}"
         },
-        url = ENDPOINT_URL,
+        url = _get_endpoint_url(),
         json = {
             "url": test_url, 
             "ttl": 1
@@ -54,6 +53,25 @@ def test_should_create_alias(test_url: str, ttl: int) -> None:
 
     print("LGTM!")
 
+def test_should_return_http_400_for_unexisting_alias() -> None:
+    unexisting_alias = "DNE"
+    unexisting_alias_url = f"{_get_endpoint_url()}{unexisting_alias}"
+
+    print(f"Verifying that {unexisting_alias_url} returns HTTP 400 with error message ...")
+    redirect_response = requests.get(
+        url=unexisting_alias_url,
+        allow_redirects=False
+    )
+
+    assert redirect_response.status_code == 400
+
+    response_json = redirect_response.json()
+    assert response_json["message"] == f"Alias '{unexisting_alias}' is unknown or expired!"
+
+    print("LGTM!")
+
+def _get_endpoint_url() -> str:
+    return os.environ["ENDPOINT_URL"]
 
 def _get_id_token() -> str:
     with open('/tmp/id_token.txt', 'r') as file:

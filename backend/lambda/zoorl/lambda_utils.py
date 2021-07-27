@@ -39,3 +39,17 @@ def get_env(env_var: str) -> str:
 
 def get_dynamodb_client():
     return boto3.resource("dynamodb")
+
+def to_json_response(object_body: Any, http_status_code: int = 200, headers = None) -> str:
+    json_response = {
+        "statusCode": http_status_code,
+        "headers": {
+            "Content-Type": "application/json",
+        },
+        "body": json.dumps(object_body)
+    }
+
+    if headers:
+        json_response["headers"] = headers
+    
+    return json_response

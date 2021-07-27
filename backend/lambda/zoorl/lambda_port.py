@@ -30,12 +30,9 @@ def handler(event, context):
         elif "POST" == event["httpMethod"]:
             return handle_create_alias(event, context, service)
     except ApplicationException as e:
-        return {
-            "statusCode": 400,
-            "body": json.dumps({
+        return lambda_utils.to_json_response({
                 "message": str(e)
-            })
-        }   
+        }, http_status_code=400)
 
 def handle_redirect(event, context, service: UrlShortenerService) -> dict:
     alias = lambda_utils.get_path_parameter(event, "alias")
@@ -63,10 +60,7 @@ def handle_create_alias(event, context, service: UrlShortenerService) -> dict:
 
     print(f"Aliasing URL: {short_url} --> {url}")
 
-    return {
-        "statusCode": 200,
-        "body": json.dumps({
-            "url": url,
-            "short_url": short_url
-        })
-    }
+    return lambda_utils.to_json_response({
+        "url": url,
+        "short_url": short_url
+    }, http_status_code=200)
