@@ -37,7 +37,7 @@ export class ZoorlPipelineStack extends Stack {
         oauthToken: SecretValue.secretsManager("github-token"),
         owner: "scalasm",
         repo: "serverless-url-shortener",
-        branch: "features/zoorl-2",
+        branch: "main",
       }),
 
       // How it will be built and synthesized
