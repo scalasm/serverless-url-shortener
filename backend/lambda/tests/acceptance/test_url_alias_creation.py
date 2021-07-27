@@ -45,7 +45,8 @@ def test_should_create_alias(test_url: str, ttl: int) -> None:
 
     print(f"Verifying that {alias_url} redirects to {test_url} ...")
     redirect_response = requests.get(
-        url=alias_url
+        url=alias_url,
+        allow_redirects=False
     )
 
     assert redirect_response.status_code == 301
