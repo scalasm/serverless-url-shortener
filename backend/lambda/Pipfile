@@ -11,6 +11,9 @@ pytest = "*"
 pytest-icdiff = "*"
 pylint = "*"
 pytest-mock = "*"
+requests = "*"
+flake8 = "*"
+pytest-pythonpath = "*"
 
 [requires]
 python_version = "3.8"
