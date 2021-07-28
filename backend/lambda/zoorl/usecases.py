@@ -2,10 +2,12 @@ from zoorl.common import (
     ApplicationException,
     ShortenedUrlModel,
     ShortenedUrlRepository,
-    TimeToLiveThreshold,
-    UrlShortenerServiceConfig
+    ApplicationConfig
 )
-from zoorl.utils import compute_hash, compute_ttl
+import zoorl.utils as utils
+
+# Default time to live (days) for aliased URLs, if not specified by clients
+DEFAULT_TTL = 1
 
 class ServiceException(ApplicationException):
     """Base exception for this application"""
@@ -24,17 +26,17 @@ class AliasIsUnknownException(ServiceException):
     pass
 
 class UrlShortenerService:
-    def __init__(self, repository: ShortenedUrlRepository, config: UrlShortenerServiceConfig) -> None:
+    def __init__(self, repository: ShortenedUrlRepository, config: ApplicationConfig) -> None:
         self.repository = repository
         self.config = config
 
-    def shorten_url(self, long_url: str, ttl_threshold: TimeToLiveThreshold=TimeToLiveThreshold.ONE_DAY) -> str:
+    def shorten_url(self, long_url: str, ttl_threshold: int = DEFAULT_TTL) -> str:
         """Creates and save an alias for the specified URL that can be then used for creating the shortened URL"""
         if not long_url:
             raise NoUrlSpecifiedException()
 
-        alias = compute_hash(long_url)
-        ttl = compute_ttl(ttl_threshold)
+        alias = utils.compute_hash(long_url)
+        ttl = utils.compute_epoch_time_from_ttl(ttl_threshold)
 
         # We overwrite any pre-existing URL, this is by design to keep the use case simple :)
         shortened_url = ShortenedUrlModel(long_url, alias, ttl)

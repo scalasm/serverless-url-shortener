@@ -2,12 +2,9 @@ import hashlib
 
 from datetime import datetime, timedelta
 
-from zoorl.common import TimeToLiveThreshold
-
-def compute_ttl(ttl_threshold: TimeToLiveThreshold) -> int:
+def compute_epoch_time_from_ttl(days_from_now: int) -> int:
     """Compute the UNIX epoch time from now according to the specified threshold"""
     now = get_now()
-    days_from_now = TimeToLiveThreshold.to_days(ttl_threshold)
 
     time_delta = timedelta(days=days_from_now)
     ttl_date = now + time_delta

@@ -3,7 +3,6 @@ from pytest_mock import MockerFixture
 
 from datetime import datetime
 
-from zoorl.common import TimeToLiveThreshold
 import zoorl.utils as utils
 
 compute_hash_test_data = [
@@ -18,15 +17,15 @@ def test_compute_hash(url, expected_hash) -> None:
     assert hash == expected_hash
 
 
-compute_ttl_test_data = [
-    (datetime(2021, 7, 24, 17, 30), TimeToLiveThreshold.ONE_DAY, datetime(2021, 7, 25, 17, 30)),
-    (datetime(2021, 7, 1, 17, 30), TimeToLiveThreshold.SEVEN_DAYS, datetime(2021, 7, 8, 17, 30)),
-    (datetime(2021, 7, 1, 17, 30), TimeToLiveThreshold.THIRTY_DAYS, datetime(2021, 7, 31, 17, 30)),
+compute_epoch_time_from_ttl_test_data = [
+    (datetime(2021, 7, 24, 17, 30), 1, datetime(2021, 7, 25, 17, 30)),
+    (datetime(2021, 7, 1, 17, 30), 7, datetime(2021, 7, 8, 17, 30)),
+    (datetime(2021, 7, 1, 17, 30), 30, datetime(2021, 7, 31, 17, 30)),
 ]
 
-@pytest.mark.parametrize("now_datetime,ttl_threshold,expected_datetime", compute_ttl_test_data)
-def test_compute_ttl(mocker: MockerFixture, now_datetime: datetime, ttl_threshold: TimeToLiveThreshold, expected_datetime: datetime) -> None:
+@pytest.mark.parametrize("now_datetime,ttl_threshold,expected_datetime", compute_epoch_time_from_ttl_test_data)
+def test_compute_epoch_time_from_ttl(mocker: MockerFixture, now_datetime: datetime, ttl_threshold: int, expected_datetime: datetime) -> None:
     mocker.patch.object(utils, "get_now", return_value=now_datetime)
 
-    computed_ttl = utils.compute_ttl(ttl_threshold)
+    computed_ttl = utils.compute_epoch_time_from_ttl(ttl_threshold)
     assert computed_ttl == expected_datetime.timestamp()

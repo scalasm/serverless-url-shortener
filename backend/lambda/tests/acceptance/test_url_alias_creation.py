@@ -53,17 +53,17 @@ def test_should_create_alias(test_url: str, ttl: int) -> None:
 
     print("LGTM!")
 
-def test_should_return_http_400_for_unexisting_alias() -> None:
+def test_should_return_http_404_for_unexisting_alias() -> None:
     unexisting_alias = "DNE"
     unexisting_alias_url = f"{_get_endpoint_url()}{unexisting_alias}"
 
-    print(f"Verifying that {unexisting_alias_url} returns HTTP 400 with error message ...")
+    print(f"Verifying that {unexisting_alias_url} returns HTTP 404 with error message ...")
     redirect_response = requests.get(
         url=unexisting_alias_url,
         allow_redirects=False
     )
 
-    assert redirect_response.status_code == 400
+    assert redirect_response.status_code == 404
 
     response_json = redirect_response.json()
     assert response_json["message"] == f"Alias '{unexisting_alias}' is unknown or expired!"
