@@ -1,3 +1,7 @@
+// Copyright Mario Scalas 2020. All Rights Reserved.
+// This file is licensed under the MIT License.
+// License text available at https://opensource.org/licenses/MIT
+
 import { CfnOutput, Construct, Stage, StageProps } from "@aws-cdk/core";
 import { SharedStack } from "./shared-stack";
 import { ZoorlAPIStack } from "./zoorl-api-stack";
