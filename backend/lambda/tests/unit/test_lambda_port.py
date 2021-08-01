@@ -10,6 +10,8 @@ import zoorl.lambda_port as lambda_port
 handler_test_data = [
     ("GET", "handle_redirect"),
     ("POST", "handle_create_alias"),
+    ("OPTIONS", "handle_unsupported_http_method"),
+    ("PUT", "handle_unsupported_http_method"),
 ]
 
 @pytest.mark.parametrize("httpMethod,expected_handle_function_name", handler_test_data)
