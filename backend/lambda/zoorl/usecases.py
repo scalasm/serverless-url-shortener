@@ -31,7 +31,18 @@ class UrlShortenerService:
         self.config = config
 
     def shorten_url(self, long_url: str, ttl_threshold: int = DEFAULT_TTL) -> str:
-        """Creates and save an alias for the specified URL that can be then used for creating the shortened URL"""
+        """Creates and save an alias for the specified URL that can be then used for creating the shortened URL
+        
+        Args:
+            long_url: the URL for which we want to create a shorter version
+            ttl_threshold: the number of days 
+        
+        Returns:
+            the alias that has been associated to that URL (clients will use it to build actual URLs)
+
+        Raises:
+            NoUrlSpecifiedException - if the long_url is empty or None
+        """
         if not long_url:
             raise NoUrlSpecifiedException()
 
@@ -45,7 +56,18 @@ class UrlShortenerService:
         return alias
 
     def get_long_url_by_alias(self, alias: str) -> str:
-        """Returns the URL associated with a given alias"""
+        """Returns the URL associated with a given alias
+        
+        Args:
+            alias: the alias we want the long URL for
+        
+        Returns:
+            the URL that was associated to that alias
+
+        Raises:
+            NoAliasSpecifiedException: no alias was specified as input
+            AliasIsUnknownException: the alias is unknown or has expired
+        """
         if not alias:
             raise NoAliasSpecifiedException("Requested alias cannot be empty!")
 
