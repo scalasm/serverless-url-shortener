@@ -1,3 +1,7 @@
+// Copyright Mario Scalas 2020. All Rights Reserved.
+// This file is licensed under the MIT License.
+// License text available at https://opensource.org/licenses/MIT
+
 import * as codepipeline from "@aws-cdk/aws-codepipeline";
 import * as codepipeline_actions from "@aws-cdk/aws-codepipeline-actions";
 import { Construct, Environment, SecretValue, Stack, StackProps } from "@aws-cdk/core";
