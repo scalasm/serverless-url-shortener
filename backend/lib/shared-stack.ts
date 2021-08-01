@@ -1,5 +1,8 @@
+// Copyright Mario Scalas 2020. All Rights Reserved.
+// This file is licensed under the MIT License.
+// License text available at https://opensource.org/licenses/MIT
+
 import * as cdk from "@aws-cdk/core";
-import * as ddb from "@aws-cdk/aws-dynamodb";
 import * as cognito from "@aws-cdk/aws-cognito";
 
 /**
