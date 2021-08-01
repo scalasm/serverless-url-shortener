@@ -1,9 +1,9 @@
 import * as codepipeline from "@aws-cdk/aws-codepipeline";
 import * as codepipeline_actions from "@aws-cdk/aws-codepipeline-actions";
-import * as iam from "@aws-cdk/aws-iam";
-import { Construct, Environment, SecretValue, Stack, StackProps, StageProps } from "@aws-cdk/core";
-import { CdkPipeline, SimpleSynthAction, ShellScriptAction, AddStageOptions } from "@aws-cdk/pipelines";
+import { Construct, Environment, SecretValue, Stack, StackProps } from "@aws-cdk/core";
+import { CdkPipeline, SimpleSynthAction } from "@aws-cdk/pipelines";
 import { ZoorlApplicationStage } from "./zoorl-application-stage";
+import * as custom_actions from "./custom-pipeline-actions";
 
 /**
  * Configuration properties for the pipeline stack.
@@ -55,45 +55,20 @@ export class ZoorlPipelineStack extends Stack {
       }),
     });
 
+    pipeline.codePipeline.addStage( {
+      stageName: "UnitTests",
+      actions: [
+        custom_actions.pythonUnitTestsAction(sourceArtifact)
+      ]
+    });
+
     // This is where we add the application stages
     const preprod = new ZoorlApplicationStage(this, "PreProd", {
       env: props.preprodEnv
     });
     const preprodStage = pipeline.addApplicationStage(preprod);
-    preprodStage.addActions(new ShellScriptAction({
-      actionName: "RunAcceptanceTests",
-      // Acceptance tests code is in the ... source code, so we need the pipeline to unzip it for us in the working folder :)
-      additionalArtifacts: [
-        sourceArtifact
-      ],
-      useOutputs: {
-        // Get the stack Output from the Stage and make it available in
-        // the shell script as $ENDPOINT_URL.
-        ENDPOINT_URL: pipeline.stackOutput(preprod.apiUrlOutput),
-        TARGET_AWS_REGION: pipeline.stackOutput(preprod.regionOutput),
-        USER_POOL_ID: pipeline.stackOutput(preprod.userPoolIdOutput),
-        USER_POOL_CLIENT_ID: pipeline.stackOutput(preprod.userPoolClientIdOutput),
-      },
-      commands: [
-        "python --version",
-        "pipenv --version",
-        "cd backend/lambda",
-        "pipenv install",
-        "pipenv install --dev",
-        "pipenv run pytest tests/acceptance/"
-      ],
-      rolePolicyStatements: [
-        // Allow for creating / destroying / authenticating test users 
-        new iam.PolicyStatement({
-          resources: ["*"],
-          actions: [
-            "cognito-idp:AdminCreateUser",
-            "cognito-idp:AdminDeleteUser",
-            "cognito-idp:AdminSetUserPassword",
-            "cognito-idp:AdminInitiateAuth"
-          ],
-        })
-      ]
-    }));
+    preprodStage.addActions( 
+      custom_actions.acceptanceTestsAction(pipeline, preprod, sourceArtifact)
+    );
   }
 }
