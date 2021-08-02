@@ -13,6 +13,10 @@ class ServiceException(ApplicationException):
     """Base exception for this application"""
     pass
 
+class InvalidTTLException(ServiceException):
+    """The time to live (TTL) specified for the request was not matching the configuration"""
+    pass
+
 class NoUrlSpecifiedException(ServiceException):
     """No URL was specified when asking for a short URL"""
     pass
@@ -45,6 +49,11 @@ class UrlShortenerService:
         """
         if not long_url:
             raise NoUrlSpecifiedException()
+
+
+        props = self.config.valid_ttl_boundaries
+        if not ttl_threshold in self.config.valid_ttl_boundaries:
+            raise InvalidTTLException(f"Valid TTL values are within {self.config.valid_ttl_boundaries}")
 
         alias = utils.compute_hash(long_url)
         ttl = utils.compute_epoch_time_from_ttl(ttl_threshold)

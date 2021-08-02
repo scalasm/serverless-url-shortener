@@ -2,6 +2,8 @@ from unittest.mock import MagicMock
 import pytest
 from pytest_mock import MockerFixture
 
+from typing import Any
+
 import zoorl.utils as utils
 
 from zoorl.common import (
@@ -12,6 +14,7 @@ from zoorl.common import (
 from zoorl.usecases import (
     UrlShortenerService,
     AliasIsUnknownException,
+    InvalidTTLException,
     NoAliasSpecifiedException,
     NoUrlSpecifiedException
 )
@@ -66,12 +69,28 @@ class TestUrlShortenerService:
         (""),
     ]
 
-    @pytest.mark.parametrize("long_url", no_alias_test_data)
+    @pytest.mark.parametrize("long_url", no_long_url_test_data)
     def test_shorten_url__no_long_url(self, service: UrlShortenerService, long_url: str) -> None:
         with pytest.raises(NoUrlSpecifiedException):
             service.shorten_url(long_url, 10)
 
-    def test_shorten_url(self, monkeypatch, mocker: MockerFixture, service: UrlShortenerService, mock_repository: ShortenedUrlRepository) -> None:
+
+    invalid_ttl_test_data = [
+        ("https://something.com/nicestuff.html", 0),
+        ("https://something.com/nicestuff.html", -1),
+        ("https://something.com/nicestuff.html", 11),
+    ]
+
+    @pytest.mark.parametrize("long_url,ttl", invalid_ttl_test_data)
+    def test_shorten_url__invalid_ttl(self, monkeypatch: Any, service: UrlShortenerService, mock_application_config: ApplicationConfig, long_url: str, ttl: int) -> None:
+        monkeypatch.setattr(mock_application_config, "valid_ttl_boundaries", range(1,10)) 
+       
+        with pytest.raises(InvalidTTLException):
+            service.shorten_url(long_url, ttl)
+
+    def test_shorten_url(self, monkeypatch: Any, mocker: MockerFixture, service: UrlShortenerService, mock_application_config: ApplicationConfig, mock_repository: ShortenedUrlRepository) -> None:
+        monkeypatch.setattr(mock_application_config, "valid_ttl_boundaries", range(1,10)) 
+
         fake_alias = "fake"
         fake_ttl = 100000000 # Fake Unix epoch time (does not make any sense, it's not important)
         

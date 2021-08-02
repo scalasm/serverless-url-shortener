@@ -54,11 +54,10 @@ class TestUrlShortenerServiceConfig:
         mock_get_env = mocker.patch("zoorl.common.ApplicationConfig.get_env", return_value="test_table_name")
         mock_dynamodb_client = MagicMock()
         mock_dynamodb_client_property = mocker.PropertyMock(return_value=mock_dynamodb_client)
+        ApplicationConfig.dynamodb_client = mock_dynamodb_client_property
 
         mock_table = MagicMock()
         mock_dynamodb_client_property.Table.return_value = mock_table
-
-        ApplicationConfig.dynamodb_client = mock_dynamodb_client_property(return_value = mock_dynamodb_client_property)
 
         service_config = ApplicationConfig()
 
