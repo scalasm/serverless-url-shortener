@@ -31,7 +31,7 @@ export class ZoorlPipelineStack extends Stack {
       selfMutating: true,
 
       // The pipeline name
-      pipelineName: "ZoorlPipeline",
+      pipelineName: `${this.region}-zoorl-pipeline`,
       cloudAssemblyArtifact,
 
       // Where the source can be found
