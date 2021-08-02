@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Any, Optional
 
 import boto3
 import os
@@ -42,6 +42,12 @@ class RepositoryException(ApplicationException):
     """Exception throws because of the errors in the repository layer"""
     pass
 
+
+class TTLBoundaries:
+    def __init__(self, lower_bound: int, upper_bound: int) -> None:
+        self.lower_bound = lower_bound
+        self.upper_bound = upper_bound
+
 class ApplicationConfig:
     """Well-known configuration options for the URL Shortener service"""
     def __init__(self) -> None:
@@ -60,16 +66,25 @@ class ApplicationConfig:
         return os.environ.get(env_var, default_value)
 
     @property
-    def dynamodb_client(self):
+    def dynamodb_client(self) -> Any:
         """Returns the AWS DynamoDB client (lazily created and then cached)"""
         if not self.__dynamodb_client:
             self.__dynamodb_client = boto3.resource("dynamodb")
         return self.__dynamodb_client
 
     @property
-    def urls_table(self):
+    def urls_table(self) -> Any:
         """Returns the DynamoDB table for mapping URLs and aliases (lazily created and then cached)"""
         if not self.__urls_table:
             table_name = self.get_env("URLS_TABLE")
             self.__urls_table = self.dynamodb_client.Table(table_name)
         return self.__urls_table
+
+    @property
+    def valid_ttl_boundaries(self) -> range:
+        """Returns the limits for the TTL, namely one day minimum and 30 days top.
+        
+        Returns:
+            a range that can be used for checking boundary conditions
+        """
+        return range(1, 30)
