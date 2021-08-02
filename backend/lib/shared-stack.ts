@@ -33,7 +33,8 @@ export class SharedStack extends cdk.Stack {
         this.userPoolClient = new cognito.UserPoolClient(this, "ZoorlUserPoolClient", {
             userPool: this.userPool,
             authFlows: {
-                adminUserPassword: true
+                adminUserPassword: true,
+                userSrp: true
             },
             generateSecret: false // No need to generate a secret for webapps running in browser
         });
