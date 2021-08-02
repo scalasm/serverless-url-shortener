@@ -7,13 +7,13 @@ import * as codepipeline_actions from "@aws-cdk/aws-codepipeline-actions";
 import { Construct, Environment, SecretValue, Stack, StackProps } from "@aws-cdk/core";
 import { CdkPipeline, SimpleSynthAction } from "@aws-cdk/pipelines";
 import { ZoorlApplicationStage } from "./zoorl-application-stage";
-import * as custom_actions from "./custom-pipeline-actions";
+import * as customactions from "./custom-pipeline-actions";
 
 /**
  * Configuration properties for the pipeline stack.
  */
 export interface ZoorlPipelineStackProps extends StackProps {
-  preprodEnv: Environment;
+  stagingEnv: Environment;
 }
 
 /**
@@ -59,20 +59,20 @@ export class ZoorlPipelineStack extends Stack {
       }),
     });
 
-    pipeline.codePipeline.addStage( {
+    pipeline.codePipeline.addStage({
       stageName: "UnitTests",
       actions: [
-        custom_actions.pythonUnitTestsAction(sourceArtifact)
+        customactions.pythonUnitTestsAction(sourceArtifact)
       ]
     });
 
     // This is where we add the application stages
-    const preprod = new ZoorlApplicationStage(this, "PreProd", {
-      env: props.preprodEnv
+    const staging = new ZoorlApplicationStage(this, `staging-${this.region}`, {
+      env: props.stagingEnv
     });
-    const preprodStage = pipeline.addApplicationStage(preprod);
-    preprodStage.addActions( 
-      custom_actions.acceptanceTestsAction(pipeline, preprod, sourceArtifact)
+    const stagingApplicationStage = pipeline.addApplicationStage(staging);
+    stagingApplicationStage.addActions(
+      customactions.acceptanceTestsAction(pipeline, staging, sourceArtifact)
     );
   }
 }
