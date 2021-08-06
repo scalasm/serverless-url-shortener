@@ -61,7 +61,13 @@ export class ZoorlAPIStack extends cdk.Stack {
 
     const apiIntegration = new apigateway.LambdaIntegration(urlShortenerFunction);
 
-    const urlShortenerApi = new apigateway.RestApi(this, "zoorl-api");
+    const urlShortenerApi = new apigateway.RestApi(this, "zoorl-api", {
+      defaultCorsPreflightOptions: {
+        allowOrigins: apigateway.Cors.ALL_ORIGINS,
+        allowMethods: apigateway.Cors.ALL_METHODS // this is also the default
+      }
+    });
+    
     // Map POST /u
     const urlResource = urlShortenerApi.root //.root.addResource("u");
     urlResource.addMethod("POST", apiIntegration, {
