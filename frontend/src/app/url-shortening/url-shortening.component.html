@@ -1,7 +1,7 @@
 <div class="grid-container">
   <mat-grid-list cols="2">
     <mat-grid-tile [colspan]="2" [rowspan]="1">
-      <form [formGroup]="formGroup" (ngSubmit)="onSubmit()" class="my-form">
+      <form [formGroup]="urlShorteningForm" class="my-form">
         <mat-card>
           <mat-card-title> Zip a web address </mat-card-title>
           <mat-card-subtitle>
@@ -41,11 +41,11 @@
           </mat-card-content>
           <mat-card-actions>
             <div class="button-flex-container">
-              <button mat-raised-button color="primary">Zip!</button>
+              <button mat-raised-button color="primary" (click)="onSubmit()" >Zip!</button>
               <button
                 mat-raised-button
                 color="secondary"
-                (click)="(onClearClicked)"
+                (click)="onClearClicked()"
               >
                 Clear
               </button>
@@ -57,9 +57,12 @@
 
     <mat-grid-tile [colspan]="2" [rowspan]="1" *ngIf="shortUrl">
       <mat-card>
-        <mat-card-title> Shorten URL </mat-card-title>
-        <mat-card-content>
-          <p>Your URL will appear here!</p>
+        <mat-card-title>This is your zipped URL</mat-card-title>
+        <mat-card-subtitle>
+          You can copy and distribute across your network.
+        </mat-card-subtitle>
+      <mat-card-content>
+          <p>{{shortUrl}}</p>
         </mat-card-content>
         <mat-card-actions>
           <div class="button-flex-container">

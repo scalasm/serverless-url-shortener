@@ -11,19 +11,12 @@ import { CognitoUserInterface } from "@aws-amplify/ui-components";
 export class HeaderComponent implements OnInit, OnDestroy {
   authEvent$!: Subscription;
 
-  user: CognitoUserInterface | undefined;
-
   constructor(public authService: AuthServiceService) { }
 
   ngOnInit(): void {
     this.authEvent$ = this.authService.authenticationChangedEvent.subscribe({
       next: (isAuthenticated) => {
-        console.log( "User authenticated ? " + isAuthenticated );
-        this.user = this.authService.user;
-        if (this.user) {
-          console.log(JSON.stringify(this.user));
-          console.log(this.authService.authToken);
-        }        
+        console.log("User authenticated ? " + isAuthenticated);
       }
     });
   }
