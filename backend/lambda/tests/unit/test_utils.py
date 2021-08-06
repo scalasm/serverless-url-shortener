@@ -6,7 +6,8 @@ from datetime import datetime
 import zoorl.utils as utils
 
 compute_hash_test_data = [
-    ("http://www.google.com", "cKe4cZG"),
+    ("http://www.google.com", "bJd4bYF"),
+    ("https://jasonwatmore.com/post/2019/11/21/angular-http-post-request-examples", "3ZlbRMf")
 ]
 
 @pytest.mark.parametrize("url,expected_hash", compute_hash_test_data)

@@ -16,12 +16,15 @@ def compute_hash(url: str) -> str:
 
     return to_base_62(hash)
 
+
+BASE62_ENCODING_CHARS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
 def to_base_62(some_number: int) -> str:
     """Encode a number into its Base62 representation"""
-    s = '012345689abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    hash_str = ''
+    hash_str = ""
+
     while some_number > 0:
-       hash_str = s[some_number % 62] + hash_str
+       hash_str = BASE62_ENCODING_CHARS[some_number % 62] + hash_str
        some_number //= 62
     return hash_str
 
