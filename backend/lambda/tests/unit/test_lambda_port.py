@@ -29,6 +29,22 @@ def test_should_redirect_to_correct_handler_functions(mocker: MockerFixture, mon
 
     mock_handle_function.assert_called_once()
 
+@pytest.mark.parametrize("httpMethod,expected_handle_function_name", handler_test_data)
+def test_should_add_cors_headers_to_lambda_response(mocker: MockerFixture, monkeypatch, httpMethod: str, expected_handle_function_name: str) -> None:
+    monkeypatch.setenv("URLS_TABLE", "test_table")
+
+    event = {
+        "httpMethod": httpMethod,
+    }
+    context = {}
+
+    mocker.patch.object(lambda_port, expected_handle_function_name, return_value={})
+
+    lambda_response = lambda_port.handler(event, context)
+
+    assert "Access-Control-Allow-Origin" in lambda_response["headers"]
+    assert "Access-Control-Allow-Credentials" in lambda_response["headers"]
+
 def test_handle_redirect(mocker) -> None:
     fake_alias = "abcd"
     fake_long_url = "https://fake"

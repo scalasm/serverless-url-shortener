@@ -1,4 +1,4 @@
-
+import functools
 import json
 from typing import Optional, Any
 
@@ -58,3 +58,16 @@ def to_json_response(object_body: Any, http_status_code: int = 200, headers = No
         json_response["headers"].update(headers)
     
     return json_response
+
+def with_cors_headers(wrapped_function) -> dict:
+    @functools.wraps(wrapped_function)
+    def apply_cors_headers(*args, **kwargs) -> dict:
+        lambda_response = wrapped_function(*args, **kwargs)
+        if not "headers" in lambda_response:
+            lambda_response["headers"] = {}
+        lambda_response["headers"]["Access-Control-Allow-Origin"] = "*"
+        lambda_response["headers"]["Access-Control-Allow-Credentials"] = True
+
+        return lambda_response
+
+    return apply_cors_headers

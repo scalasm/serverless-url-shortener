@@ -14,6 +14,7 @@ import zoorl.lambda_utils as lambda_utils
 # Get the service resource.
 service_config = ApplicationConfig()
 
+@lambda_utils.with_cors_headers
 def handler(event, context) -> dict:
     """Main entrypoint for this AWS Lambda function: it routes the AWS Event (Application Gateway) to
     the correct business logic handler.
