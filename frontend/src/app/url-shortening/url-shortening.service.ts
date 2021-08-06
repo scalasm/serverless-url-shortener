@@ -27,10 +27,11 @@ export class UrlShorteningService {
     public shortenUrl(url: string, ttl: number) : Observable<ShortenUrlResponse> {
         const request = new ShortenUrlRequest(url, ttl);
 
-        // const headers = {
-        //     "Authorization": `Bearer ${this.authService.authToken}`
-        // }; 
-
-        return this.http.post<ShortenUrlResponse>(environment.awsconfig.apiEndpoint, request);
+        const headers = { "Authorization": `Bearer ${this.authService.authToken}`, 
+        "Access-Control-Allow-Origin": "*" };
+  
+        return this.http.post<ShortenUrlResponse>(environment.awsconfig.apiEndpoint, request, {
+            headers: headers
+        });
     }
 }
