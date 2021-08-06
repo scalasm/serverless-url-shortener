@@ -19,6 +19,19 @@ export interface ZoorlAPIStackProps extends cdk.StackProps {
   readonly userPoolClient: cognito.UserPoolClient;
 }
 
+const REQUIRED_HTTP_CORS_HEADERS = [
+  "Content-Type",
+  "X-Amz-Date",
+  "X-Amz-Security-Token",
+  "Authorization",
+  "X-Api-Key",
+  "X-Requested-With",
+  "Accept",
+  "Access-Control-Allow-Methods",
+  "Access-Control-Allow-Origin",
+  "Access-Control-Allow-Headers"
+];
+
 /**
  * URL Shortener API stack.
  */
@@ -63,6 +76,8 @@ export class ZoorlAPIStack extends cdk.Stack {
 
     const urlShortenerApi = new apigateway.RestApi(this, "zoorl-api", {
       defaultCorsPreflightOptions: {
+        allowCredentials: true,
+        allowHeaders: REQUIRED_HTTP_CORS_HEADERS,
         allowOrigins: apigateway.Cors.ALL_ORIGINS,
         allowMethods: apigateway.Cors.ALL_METHODS // this is also the default
       }
@@ -72,7 +87,7 @@ export class ZoorlAPIStack extends cdk.Stack {
     const urlResource = urlShortenerApi.root //.root.addResource("u");
     urlResource.addMethod("POST", apiIntegration, {
       authorizer: auth,
-      authorizationType: apigateway.AuthorizationType.COGNITO
+      authorizationType: apigateway.AuthorizationType.COGNITO,
     });
 
     // Map GET /u/{alias}
