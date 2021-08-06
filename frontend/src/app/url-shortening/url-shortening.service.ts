@@ -1,9 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { AuthState, CognitoUserInterface } from "@aws-amplify/ui-components";
-import { HttpClientModule } from '@angular/common/http';
-import { Subject, Observable, throwError  } from 'rxjs';
-import { catchError, retry } from 'rxjs/operators';
+import { Subject, Observable } from 'rxjs';
 import { AuthServiceService as AuthService } from '../shared/auth-service.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from './../../environments/environment';
@@ -27,8 +24,10 @@ export class UrlShorteningService {
     public shortenUrl(url: string, ttl: number) : Observable<ShortenUrlResponse> {
         const request = new ShortenUrlRequest(url, ttl);
 
-        const headers = { "Authorization": `Bearer ${this.authService.authToken}`, 
-        "Access-Control-Allow-Origin": "*" };
+        const headers = {
+            "Authorization": `Bearer ${this.authService.authToken}`,
+            "Access-Control-Allow-Origin": "*"
+        };
   
         return this.http.post<ShortenUrlResponse>(environment.awsconfig.apiEndpoint, request, {
             headers: headers
