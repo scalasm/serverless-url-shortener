@@ -7,5 +7,6 @@ interface AwsConfig {
         identityPoolRegion: string,
         userPoolId: string,
         userPoolWebClientId: string
-    }
+    },
+    apiEndpoint: string
 }

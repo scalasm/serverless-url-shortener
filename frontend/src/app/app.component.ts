@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 
-import {AuthState, onAuthUIStateChange} from "@aws-amplify/ui-components";
+import { AuthState, onAuthUIStateChange, CognitoUserInterface } from "@aws-amplify/ui-components";
+import { AuthServiceService } from './shared/auth-service.service';
 
 @Component({
   selector: 'app-root',
@@ -8,5 +9,22 @@ import {AuthState, onAuthUIStateChange} from "@aws-amplify/ui-components";
   styleUrls: ['./app.component.sass']
 })
 export class AppComponent {
-  title = 'Zoorl Serverless URL Shortener';
+  user: CognitoUserInterface | undefined;
+  authState: AuthState | undefined;
+
+  constructor(private ref: ChangeDetectorRef, private authService: AuthServiceService) { }
+
+  ngOnInit() {
+    onAuthUIStateChange((authState, authData) => {
+      this.authState = authState;
+      this.user = authData as CognitoUserInterface;
+      this.ref.detectChanges();
+
+      this.authService.onUserAuthenticated(this.user, this.authState);
+    })
+  }
+
+  ngOnDestroy(): void {
+    onAuthUIStateChange
+  }
 }

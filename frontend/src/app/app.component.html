@@ -1,11 +1,9 @@
 <app-header></app-header>
 
-<amplify-authenticator>
-  <div>
-    <mat-slider min="1" max="100" step="1" value="1"></mat-slider>
-    <amplify-sign-out></amplify-sign-out>
-  </div>
-  <!-- previous code -->
-</amplify-authenticator>
+<amplify-authenticator *ngIf="authState !== 'signedin'"></amplify-authenticator>
+
+<div *ngIf="authState === 'signedin' && user" class="App">
+  <app-url-shortening></app-url-shortening>
+</div>
 
 <app-footer></app-footer>

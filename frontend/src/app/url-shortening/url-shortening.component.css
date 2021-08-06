@@ -1,0 +1,16 @@
+.my-form {
+  min-width: 50%px;
+  max-width: 90%;
+  width: 100%;
+}
+
+.my-full-width {
+  width: 100%;
+}
+
+.main-div {
+  height: 60vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
