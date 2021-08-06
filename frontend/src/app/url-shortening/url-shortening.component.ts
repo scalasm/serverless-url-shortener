@@ -15,7 +15,7 @@ export class UrlShorteningComponent implements OnInit {
   public shortUrl: string = "";
 
   constructor(private formBuilder: FormBuilder, private urlShorteningService: UrlShorteningService, public authService: AuthServiceService) {
-   }
+  }
 
   ngOnInit(): void {
     this.createForm();
@@ -24,7 +24,7 @@ export class UrlShorteningComponent implements OnInit {
   private createForm(): void {
     const urlRegex = "(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})[/\\w .-]*/?";
     this.formGroup = this.formBuilder.group({
-      "url": ["https://docs.aws.amazon.com/amplify/latest/userguide/multi-environments.html#standard", [Validators.required, Validators.pattern(urlRegex)]],
+      "url": ["https://jasonwatmore.com/post/2019/11/21/angular-http-post-request-examples", [Validators.required, Validators.pattern(urlRegex)]],
       "ttl": [1, [Validators.required, Validators.min(1), Validators.max(30)]],
       "validate": ""
     });
@@ -45,8 +45,8 @@ export class UrlShorteningComponent implements OnInit {
     var ttlFormField = this.formGroup!.get("ttl")!
 
     return ttlFormField.hasError("required") ? "Field is required" :
-      ttlFormField!.hasError("min") ? "Minimum value is 1 day" : 
-      ttlFormField!.hasError("max") ? "Maximum value is 30 days" : "";
+      ttlFormField!.hasError("min") ? "Minimum value is 1 day" :
+        ttlFormField!.hasError("max") ? "Maximum value is 30 days" : "";
   }
 
   onSubmit(): void {
@@ -66,15 +66,18 @@ export class UrlShorteningComponent implements OnInit {
   }
 
   doShortenUrl(): void {
-    this.shortUrl = "https://www.supershort.com/123456"    
+    this.shortUrl = "...";
 
     const url = this.f["url"].value;
     const ttl = this.f["ttl"].value;
 
-    this.urlShorteningService.shortenUrl(url, ttl).subscribe( (response) => {
-      this.shortUrl = response.short_url;
-
-      console.log("Got a zipped URL: " + this.shortUrl);
+    this.urlShorteningService.shortenUrl(url, ttl).subscribe({
+      next: response => {
+        this.shortUrl = response.short_url;
+      },
+      error: error => {
+        console.error('There was an error!', error);
+      }
     });
   }
 }
