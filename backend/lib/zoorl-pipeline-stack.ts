@@ -23,8 +23,13 @@ export class ZoorlPipelineStack extends Stack {
   constructor(scope: Construct, id: string, props: ZoorlPipelineStackProps) {
     super(scope, id, props);
 
-    const sourceArtifact = new codepipeline.Artifact();
-    const cloudAssemblyArtifact = new codepipeline.Artifact();
+    const githubSettings = this.node.tryGetContext("github");
+
+    const sourceArtifact = new codepipeline.Artifact("source");
+    const cloudAssemblyArtifact = new codepipeline.Artifact("cloudAssembly");
+
+    const lambdaArtifact = new codepipeline.Artifact("lambda");
+    const frontendArtifact = new codepipeline.Artifact("frontend");
 
     const pipeline = new CdkPipeline(this, "CICDPipeline", {
       // DO NOT COMMIT: it's only for local testing!
@@ -39,9 +44,9 @@ export class ZoorlPipelineStack extends Stack {
         actionName: "GitHub",
         output: sourceArtifact,
         oauthToken: SecretValue.secretsManager("github-token"),
-        owner: "scalasm",
-        repo: "zoorl-serverless-url-shortener",
-        branch: "main",
+        owner: githubSettings["alias"],
+        repo: githubSettings["repo_name"],
+        branch: githubSettings["repo_branch"],
       }),
 
       // How it will be built and synthesized
@@ -56,23 +61,36 @@ export class ZoorlPipelineStack extends Stack {
         subdirectory: "backend",
         // For Typescript-based Lambdas We need a build step for traspiling
         buildCommand: "npm run build",
+
+        additionalArtifacts: [
+          {
+            directory: "lambda",
+            artifact: lambdaArtifact
+          }
+        ]
       }),
     });
 
     pipeline.codePipeline.addStage({
       stageName: "UnitTests",
       actions: [
-        customactions.pythonUnitTestsAction(sourceArtifact)
+        customactions.pythonUnitTestsAction(lambdaArtifact)
       ]
     });
 
+    const deploymentStages = this.node.tryGetContext("deploymentStages");
+    
+    for (const [stage, settings] of Object.entries(deploymentStages)) { 
+      console.log(stage, JSON.stringify(settings));
+    }
     // This is where we add the application stages
     const staging = new ZoorlApplicationStage(this, `staging-${this.region}`, {
       env: props.stagingEnv
     });
     const stagingApplicationStage = pipeline.addApplicationStage(staging);
     stagingApplicationStage.addActions(
-      customactions.acceptanceTestsAction(pipeline, staging, sourceArtifact)
+
+      customactions.acceptanceTestsAction(pipeline, staging, lambdaArtifact)
     );
   }
 }

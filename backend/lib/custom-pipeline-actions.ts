@@ -7,7 +7,7 @@ import * as iam from "@aws-cdk/aws-iam";
 import { CdkPipeline, ShellScriptAction } from "@aws-cdk/pipelines";
 import { ZoorlApplicationStage } from "./zoorl-application-stage";
 
-export function pythonUnitTestsAction(sourceArtifact: codepipeline.Artifact, lambdaCodeDirectory: string = "backend/lambda"): ShellScriptAction {
+export function pythonUnitTestsAction(sourceArtifact: codepipeline.Artifact, lambdaCodeDirectory: string = "lambda"): ShellScriptAction {
   return new ShellScriptAction({
     actionName: "RunUnitTests",
     // Acceptance tests code is in the ... source code, so we need the pipeline to unzip it for us in the working folder :)
@@ -30,7 +30,7 @@ export function acceptanceTestsAction(
   pipeline: CdkPipeline,
   zoorlApplicationStage: ZoorlApplicationStage,
   sourceArtifact: codepipeline.Artifact,
-  lambdaCodeDirectory: string = "backend/lambda"): ShellScriptAction {
+  lambdaCodeDirectory: string = "lambda"): ShellScriptAction {
   return new ShellScriptAction({
     actionName: "RunAcceptanceTests",
     // Acceptance tests code is in the ... source code, so we need the pipeline to unzip it for us in the working folder :)

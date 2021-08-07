@@ -13,6 +13,24 @@
     "@aws-cdk/aws-rds:lowercaseDbIdentifier": true,
     "@aws-cdk/aws-efs:defaultEncryptionAtRest": true,
     "@aws-cdk/aws-lambda:recognizeVersionProps": true,
-    "@aws-cdk/core:newStyleStackSynthesis": true
+    "@aws-cdk/core:newStyleStackSynthesis": true,
+
+    "github": {
+      "alias": "scalasm",
+      "repo_name": "zoorl-serverless-url-shortener",
+      "repo_branch": "main"
+    },
+
+    "deploymentStages": {
+      "staging": {
+        "zoneName": "marioscalas.me",
+        "subdomain": "zoorl",
+        "environment": {
+          "account": "12345678903",
+          "region": "eu-west-1"
+        },
+        "runAcceptanceTests": true
+      }
+    }
   }
 }
