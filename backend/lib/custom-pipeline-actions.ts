@@ -7,7 +7,23 @@ import * as iam from "@aws-cdk/aws-iam";
 import { CdkPipeline, ShellScriptAction } from "@aws-cdk/pipelines";
 import { ZoorlApplicationStage } from "./zoorl-application-stage";
 
-export function pythonUnitTestsAction(sourceArtifact: codepipeline.Artifact, lambdaCodeDirectory: string = "lambda"): ShellScriptAction {
+/**
+ * Before running the build commands, we usually want to setup the dependencies: let's share the commands here.
+ */
+const PYTHON_PREREQUISITES_COMMANDS = [
+  "python --version",
+  "pipenv --version",
+  "pipenv install",
+  "pipenv install --dev",
+  "pipenv --venv",
+];
+
+/**
+ * Create an action for running unit tests inside the Python AWS Lambda code.
+ * @param sourceArtifact the source code 
+ * @returns a new ShellScriptAction for running the tests
+ */
+export function pythonUnitTestsAction(sourceArtifact: codepipeline.Artifact): ShellScriptAction {
   return new ShellScriptAction({
     actionName: "RunUnitTests",
     // Acceptance tests code is in the ... source code, so we need the pipeline to unzip it for us in the working folder :)
@@ -15,22 +31,21 @@ export function pythonUnitTestsAction(sourceArtifact: codepipeline.Artifact, lam
       sourceArtifact
     ],
     commands: [
-      "env",
-      "python --version",
-      "pipenv --version",
-      `cd ${lambdaCodeDirectory}`,
-      "pipenv install",
-      "pipenv install --dev",
+      ...PYTHON_PREREQUISITES_COMMANDS,
       "pipenv run ./tests/run-unit-tests.sh"
-    ]
+    ],
   });
 }
 
+/**
+ * Create an action for running acceptance tests inside the Python AWS Lambda code.
+ * @param sourceArtifact the source code
+ * @returns a new ShellScriptAction for running the tests
+ */
 export function acceptanceTestsAction(
   pipeline: CdkPipeline,
   zoorlApplicationStage: ZoorlApplicationStage,
-  sourceArtifact: codepipeline.Artifact,
-  lambdaCodeDirectory: string = "lambda"): ShellScriptAction {
+  sourceArtifact: codepipeline.Artifact): ShellScriptAction {
   return new ShellScriptAction({
     actionName: "RunAcceptanceTests",
     // Acceptance tests code is in the ... source code, so we need the pipeline to unzip it for us in the working folder :)
@@ -46,13 +61,10 @@ export function acceptanceTestsAction(
       USER_POOL_CLIENT_ID: pipeline.stackOutput(zoorlApplicationStage.userPoolClientIdOutput),
     },
     commands: [
-      "python --version",
-      "pipenv --version",
-      `cd ${lambdaCodeDirectory}`,
-      "pipenv install",
-      "pipenv install --dev",
+      ...PYTHON_PREREQUISITES_COMMANDS,
       "pipenv run pytest tests/acceptance/"
     ],
+
     rolePolicyStatements: [
       // Allow for creating / destroying / authenticating test users 
       new iam.PolicyStatement({
