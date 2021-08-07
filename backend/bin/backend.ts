@@ -7,6 +7,7 @@
 import "source-map-support/register";
 import * as cdk from "@aws-cdk/core";
 import { ZoorlPipelineStack } from "../lib/zoorl-pipeline-stack";
+import { WebFrontendStack } from "../lib/web-frontend-stack";
 
 const app = new cdk.App();
 
@@ -18,6 +19,14 @@ new ZoorlPipelineStack(app, `${currentEnvironment.region}-zoorl-pipeline-stack`,
   env: currentEnvironment,
   // This is the environment where the application stack (e.g., APIs, DynamoDB tables, ...) will be deployed
   stagingEnv: currentEnvironment
+});
+
+const stages = app.node.tryGetContext("deploymentStages")
+
+new WebFrontendStack(app, `${currentEnvironment.region}-zoorl-webfrontend-stack`, {
+  env: currentEnvironment,
+  zoneName: stages["staging"]["zoneName"],
+  subdomain: stages["staging"]["subdomain"]
 });
 
 app.synth();
