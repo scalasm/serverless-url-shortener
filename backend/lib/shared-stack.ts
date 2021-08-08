@@ -14,7 +14,6 @@ export class SharedStack extends cdk.Stack {
     public readonly identityPool: cognito.CfnIdentityPool;
 
     public readonly userPoolIdOutput: cdk.CfnOutput;
-    public readonly userPoolArnOutput: cdk.CfnOutput;
     public readonly userPoolClientIdOutput: cdk.CfnOutput;
     public readonly identityPoolIdOutput: cdk.CfnOutput;
 
@@ -49,16 +48,16 @@ export class SharedStack extends cdk.Stack {
 
 
         this.identityPoolIdOutput = new cdk.CfnOutput(this, "IdentityPoolId", {
+            exportName: "IdentityPoolId",
             value: this.identityPool.ref || ""
         });
         this.userPoolClientIdOutput = new cdk.CfnOutput(this, "UserPoolClientId", {
+            exportName: "UserPoolClientId",
             value: this.userPoolClient.userPoolClientId || ""
         });
         this.userPoolIdOutput = new cdk.CfnOutput(this, "UserPoolId", {
+            exportName: "UserPoolId",
             value: this.userPool.userPoolId || ""
-        });
-        this.userPoolArnOutput = new cdk.CfnOutput(this, "UserPoolArn", {
-            value: this.userPool.userPoolArn || ""
         });
         this.regionOutput = new cdk.CfnOutput(this, "Region", {
             value: this.region || ""

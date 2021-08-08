@@ -96,7 +96,8 @@ export class ZoorlAPIStack extends cdk.Stack {
       authorizationType: apigateway.AuthorizationType.NONE
     });
 
-    this.apiUrlOutput = new cdk.CfnOutput(this, 'Url', {
+    this.apiUrlOutput = new cdk.CfnOutput(this, 'apiEndpointUrl', {
+      exportName: "apiEndpoint",
       value: urlShortenerApi.url
     });
   }
