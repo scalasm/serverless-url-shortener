@@ -1,9 +1,11 @@
-// Copyright Mario Scalas 2020. All Rights Reserved.
+// Copyright Mario Scalas 2021. All Rights Reserved.
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
 import * as cdk from "@aws-cdk/core";
-import { SharedStack } from "./shared-stack";
+import * as ec2 from "@aws-cdk/aws-ec2";
+import { AuthStack } from "./auth-stack";
+import { NetworkStack } from "./network-stack";
 import { ZoorlAPIStack } from "./zoorl-api-stack";
 
 /**
@@ -13,11 +15,15 @@ export class BackendStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const sharedStack = new SharedStack(this, "shared-stack" );
+    const networkStack = new NetworkStack(this, "network-stack");
 
-    const apiStack = new ZoorlAPIStack(this, "zoorl-api-stack", {
-      userPool: sharedStack.userPool,
-      userPoolClient: sharedStack.userPoolClient
+    const authStack = new AuthStack(this, "auth-stack" );
+
+    const apiStack = new ZoorlAPIStack(this, "api-stack", {
+      vpc: networkStack.vpc,
+
+      userPool: authStack.userPool,
+      userPoolClient: authStack.userPoolClient
     });
   }
 }

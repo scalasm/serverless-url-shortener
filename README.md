@@ -12,7 +12,8 @@ I created this project as **a case study for learning about different AWS techno
 # Additional documentation
 * [Backend](backend/README.md) - this is the CDK App + REST API
   * [Lambda business code](backend/lambda/README.md) - if you need to develop the Python code, this may help
-* Frontend - TODO 
+* [Frontend]() - this is a simple Angular webapp that allows for registration/login and creating new URL aliases.
+
 
 # About the project 
 The project backlog is available [here](https://github.com/users/scalasm/projects/4).

@@ -1,0 +1,13 @@
+<img class="center" width="40%" height="10%" src="assets/images/logo.svg" alt="Zoorl logo for page header">
+<div *ngIf="(authService._authenticationChangedSubject | async) as loggedIn; else user_not_logged_in_content">
+    <div with="75%">
+        <p>Logged is as {{authService.userEmail}}</p>
+    </div>
+    <div with="25%">
+        <amplify-sign-out button-text="Logout"></amplify-sign-out>
+    </div>
+</div>
+  
+<ng-template #user_not_logged_in_content>
+    <p>Anonymous user</p>
+</ng-template>
