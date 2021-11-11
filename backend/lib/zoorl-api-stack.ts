@@ -90,9 +90,12 @@ export class ZoorlAPIStack extends cdk.Stack {
     });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     this.apiUrlOutput = new cdk.CfnOutput(this, 'apiEndpointUrl', {
       exportName: "apiEndpoint",
 =======
+=======
+>>>>>>> 52e891c8994091a482f713bac6bb3408bf49e186
     // TODO Add Cors support for responses
 
     this.apiUrlOutput = new cdk.CfnOutput(this, 'Url', {
