@@ -1,4 +1,4 @@
-// Copyright Mario Scalas 2020. All Rights Reserved.
+// Copyright Mario Scalas 2021. All Rights Reserved.
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
@@ -8,29 +8,21 @@ import * as lambda from "@aws-cdk/aws-lambda";
 import * as cognito from "@aws-cdk/aws-cognito";
 import * as apigateway from "@aws-cdk/aws-apigateway";
 import * as pylambda from "@aws-cdk/aws-lambda-python"
+import * as ec2 from "@aws-cdk/aws-ec2";
 
 /**
  * Configuration properties for the URL Shortener API stack.
  */
 export interface ZoorlAPIStackProps extends cdk.StackProps {
+  /**
+   * VPC where the resources will be created.
+   */
+  readonly vpc: ec2.IVpc;
 
   readonly userPool: cognito.UserPool;
 
   readonly userPoolClient: cognito.UserPoolClient;
 }
-
-const REQUIRED_HTTP_CORS_HEADERS = [
-  "Content-Type",
-  "X-Amz-Date",
-  "X-Amz-Security-Token",
-  "Authorization",
-  "X-Api-Key",
-  "X-Requested-With",
-  "Accept",
-  "Access-Control-Allow-Methods",
-  "Access-Control-Allow-Origin",
-  "Access-Control-Allow-Headers"
-];
 
 /**
  * URL Shortener API stack.
@@ -39,7 +31,7 @@ export class ZoorlAPIStack extends cdk.Stack {
   /**
    * The URL of the API Gateway endpoint, for use in the integ tests
    */
-   public readonly apiUrlOutput: cdk.CfnOutput;
+  public readonly apiUrlOutput: cdk.CfnOutput;
 
   constructor(scope: cdk.Construct, id: string, props: ZoorlAPIStackProps) {
     super(scope, id, props);
@@ -55,6 +47,7 @@ export class ZoorlAPIStack extends cdk.Stack {
     });
 
     const urlShortenerFunction = new pylambda.PythonFunction(this, "UrlShortenerFunction", {
+      vpc: props.vpc,
       entry: "lambda", // required
       index: "zoorl/lambda_port.py", // optional, defaults to "index.py"
       handler: "handler", // optional, defaults to "handler"
@@ -69,20 +62,20 @@ export class ZoorlAPIStack extends cdk.Stack {
     urlsTable.grantFullAccess(urlShortenerFunction);
 
     const auth = new apigateway.CognitoUserPoolsAuthorizer(this, "UrlShortenerFunctionAuthorizer", {
-      cognitoUserPools: [ props.userPool ]
-    } );
+      cognitoUserPools: [props.userPool]
+    });
 
     const apiIntegration = new apigateway.LambdaIntegration(urlShortenerFunction);
 
     const urlShortenerApi = new apigateway.RestApi(this, "zoorl-api", {
       defaultCorsPreflightOptions: {
         allowCredentials: true,
-        allowHeaders: REQUIRED_HTTP_CORS_HEADERS,
+        allowHeaders: apigateway.Cors.DEFAULT_HEADERS,
         allowOrigins: apigateway.Cors.ALL_ORIGINS,
         allowMethods: apigateway.Cors.ALL_METHODS // this is also the default
       }
     });
-    
+
     // Map POST /u
     const urlResource = urlShortenerApi.root //.root.addResource("u");
     urlResource.addMethod("POST", apiIntegration, {
@@ -96,8 +89,14 @@ export class ZoorlAPIStack extends cdk.Stack {
       authorizationType: apigateway.AuthorizationType.NONE
     });
 
+<<<<<<< HEAD
     this.apiUrlOutput = new cdk.CfnOutput(this, 'apiEndpointUrl', {
       exportName: "apiEndpoint",
+=======
+    // TODO Add Cors support for responses
+
+    this.apiUrlOutput = new cdk.CfnOutput(this, 'Url', {
+>>>>>>> Separated CI/CD infrastructure and add network stack.
       value: urlShortenerApi.url
     });
   }
