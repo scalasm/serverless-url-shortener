@@ -8,11 +8,11 @@ import * as ec2 from "@aws-cdk/aws-ec2";
 /**
  * Network stack for hosting the application.
  */
-export class NetworkStack extends cdk.Stack {
+export class NetworkStack extends cdk.NestedStack {
 
   readonly vpc: ec2.IVpc;
 
-  constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: cdk.Construct, id: string, props?: cdk.NestedStackProps) {
     super(scope, id, props);
 
     this.vpc = new ec2.Vpc(this, "vpc", {

@@ -2,5 +2,10 @@
   "hosted-zone:account=321723152483:domainName=marioscalas.me:region=eu-west-1": {
     "Id": "/hostedzone/Z2E4D5JNN2QFD6",
     "Name": "marioscalas.me."
-  }
+  },
+  "availability-zones:account=321723152483:region=eu-west-1": [
+    "eu-west-1a",
+    "eu-west-1b",
+    "eu-west-1c"
+  ]
 }

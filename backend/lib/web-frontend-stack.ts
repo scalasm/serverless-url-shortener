@@ -8,7 +8,7 @@ import { SPADeploy } from 'cdk-spa-deploy';
 /**
  * Configuration properties for Web frontend stack.
  */
-export interface WebFrontendStackProps extends cdk.StackProps {
+export interface WebFrontendStackProps extends cdk.NestedStackProps {
     readonly zoneName: string;
     readonly subdomain?: string;
 }
@@ -16,7 +16,7 @@ export interface WebFrontendStackProps extends cdk.StackProps {
 /**
  * Web frontend stack.
  */
-export class WebFrontendStack extends cdk.Stack {
+export class WebFrontendStack extends cdk.NestedStack {
     public readonly cfDistributionNameOutput: cdk.CfnOutput;
 
     public readonly s3BucketArnOutput: cdk.CfnOutput;

@@ -13,7 +13,7 @@ import * as ec2 from "@aws-cdk/aws-ec2";
 /**
  * Configuration properties for the URL Shortener API stack.
  */
-export interface ZoorlAPIStackProps extends cdk.StackProps {
+export interface ApiStackProps extends cdk.NestedStackProps {
   /**
    * VPC where the resources will be created.
    */
@@ -27,13 +27,13 @@ export interface ZoorlAPIStackProps extends cdk.StackProps {
 /**
  * All resources properly related to the the API implementation.
  */
-export class ApiStack extends cdk.Stack {
+export class ApiStack extends cdk.NestedStack {
   /**
    * The URL of the API Gateway endpoint, for use in the integ tests
    */
   public readonly apiUrlOutput: cdk.CfnOutput;
 
-  constructor(scope: cdk.Construct, id: string, props: ZoorlAPIStackProps) {
+  constructor(scope: cdk.Construct, id: string, props: ApiStackProps) {
     super(scope, id, props);
 
     const urlsTable = new ddb.Table(this, "UrlsTable", {

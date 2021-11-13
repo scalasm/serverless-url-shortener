@@ -8,7 +8,7 @@ import * as cognito from "@aws-cdk/aws-cognito";
 /**
  * Shared resources across stacks.
  */
-export class AuthStack extends cdk.Stack {
+export class AuthStack extends cdk.NestedStack {
     public readonly userPool: cognito.UserPool;
     public readonly userPoolClient: cognito.UserPoolClient;
     public readonly identityPool: cognito.CfnIdentityPool;
@@ -19,7 +19,7 @@ export class AuthStack extends cdk.Stack {
 
     public readonly regionOutput: cdk.CfnOutput;
 
-    constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+    constructor(scope: cdk.Construct, id: string, props?: cdk.NestedStackProps) {
         super(scope, id, props);
 
         this.userPool = new cognito.UserPool(this, "user-pool", {
