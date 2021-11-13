@@ -53,6 +53,7 @@ class ApplicationConfig:
     def __init__(self) -> None:
         self.__dynamodb_client = None
         self.__urls_table = None
+        self.ttl_boundaries = TTLBoundaries(1, 30)
 
     def get_env(self, env_var: str, default_value: str = None) -> str:
         """Returns the value of an OS environment variable or a default value if not present
@@ -87,4 +88,4 @@ class ApplicationConfig:
         Returns:
             a range that can be used for checking boundary conditions
         """
-        return range(1, 30)
+        return range(self.ttl_boundaries.lower_bound, self.ttl_boundaries.upper_bound)

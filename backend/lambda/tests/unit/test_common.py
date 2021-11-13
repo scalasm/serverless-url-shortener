@@ -1,15 +1,18 @@
+import os
 from unittest.mock import MagicMock
-import pytest
-from pytest_mock import MockerFixture
 
 import boto3
-import os
+import pytest
+from pytest_mock import MockerFixture
+from zoorl.common import ApplicationConfig, ShortenedUrlModel, TTLBoundaries
 
-from zoorl.common import (
-    ShortenedUrlModel,
-    ApplicationConfig
-)
 
+class TestTTLBoundaries:
+    def test_initi(self) -> None:
+        ttl_boundaries = TTLBoundaries(5, 15)
+
+        assert ttl_boundaries.lower_bound == 5
+        assert ttl_boundaries.upper_bound == 15
 
 class TestShortenedUrlModel:
     def test_init(self) -> None:
@@ -19,7 +22,7 @@ class TestShortenedUrlModel:
         assert model.alias == "test_alias"
         assert model.ttl == 15
 
-class TestUrlShortenerServiceConfig:
+class TestApplicationConfig:
 
     @pytest.fixture
     def service_config(self) -> ApplicationConfig:
@@ -49,7 +52,6 @@ class TestUrlShortenerServiceConfig:
 
         assert first_client == second_client
 
-    
     def test_urls_table_property(self, monkeypatch, mocker: MockerFixture) -> None:
         mock_get_env = mocker.patch("zoorl.common.ApplicationConfig.get_env", return_value="test_table_name")
         mock_dynamodb_client = MagicMock()
