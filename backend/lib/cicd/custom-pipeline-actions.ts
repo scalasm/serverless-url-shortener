@@ -5,7 +5,7 @@
 import * as codepipeline from "@aws-cdk/aws-codepipeline";
 import * as iam from "@aws-cdk/aws-iam";
 import { CdkPipeline, ShellScriptAction } from "@aws-cdk/pipelines";
-import { ZoorlApplicationStage } from "./zoorl-application-stage";
+import { ApplicationStage } from "./application-stage";
 
 /**
  * Before running the build commands, we usually want to setup the dependencies: let's share the commands here.
@@ -44,7 +44,7 @@ export function pythonUnitTestsAction(sourceArtifact: codepipeline.Artifact): Sh
  */
 export function acceptanceTestsAction(
   pipeline: CdkPipeline,
-  zoorlApplicationStage: ZoorlApplicationStage,
+  zoorlApplicationStage: ApplicationStage,
   sourceArtifact: codepipeline.Artifact): ShellScriptAction {
   return new ShellScriptAction({
     actionName: "RunAcceptanceTests",

@@ -25,9 +25,9 @@ export interface ZoorlAPIStackProps extends cdk.StackProps {
 }
 
 /**
- * URL Shortener API stack.
+ * All resources properly related to the the API implementation.
  */
-export class ZoorlAPIStack extends cdk.Stack {
+export class ApiStack extends cdk.Stack {
   /**
    * The URL of the API Gateway endpoint, for use in the integ tests
    */
