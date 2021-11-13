@@ -2,12 +2,16 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
+import * as cdk from "@aws-cdk/core";
 import * as codepipeline from "@aws-cdk/aws-codepipeline";
 import * as codepipeline_actions from "@aws-cdk/aws-codepipeline-actions";
 import { Construct, Environment, SecretValue, Stack, StackProps } from "@aws-cdk/core";
 import { CdkPipeline, SimpleSynthAction } from "@aws-cdk/pipelines";
-import { ZoorlApplicationStage } from "./zoorl-application-stage";
+import { ApplicationStage } from "./application-stage";
 import * as customactions from "./custom-pipeline-actions";
+import * as iam from "@aws-cdk/aws-iam";
+import { config, SharedIniFileCredentials, Organizations } from "aws-sdk";
+import { OrganizationsHelper, StageDetails } from "../support/organizations-helper";
 
 /**
  * Configuration properties for the pipeline stack.
@@ -23,13 +27,12 @@ export class ZoorlPipelineStack extends Stack {
   constructor(scope: Construct, id: string, props: ZoorlPipelineStackProps) {
     super(scope, id, props);
 
-    const githubSettings = this.node.tryGetContext("github");
-
     const sourceArtifact = new codepipeline.Artifact("source");
     const cloudAssemblyArtifact = new codepipeline.Artifact("cloudAssembly");
 
     const lambdaArtifact = new codepipeline.Artifact("lambda");
-    const frontendArtifact = new codepipeline.Artifact("frontend");
+
+    const githubSettings = this.node.tryGetContext("github");
 
     const pipeline = new CdkPipeline(this, "CICDPipeline", {
       // DO NOT COMMIT: it's only for local testing!
@@ -61,7 +64,15 @@ export class ZoorlPipelineStack extends Stack {
         subdirectory: "backend",
         // For Typescript-based Lambdas We need a build step for traspiling
         buildCommand: "npm run build",
-
+        rolePolicyStatements: [
+          new iam.PolicyStatement({
+              actions: [
+                  "organizations:ListAccounts",
+                  "organizations:ListTagsForResource"
+              ],
+              resources: ["*"],
+          }),
+      ],
         additionalArtifacts: [
           {
             directory: "lambda",
@@ -71,26 +82,18 @@ export class ZoorlPipelineStack extends Stack {
       }),
     });
 
-    pipeline.codePipeline.addStage({
-      stageName: "UnitTests",
-      actions: [
-        customactions.pythonUnitTestsAction(lambdaArtifact)
-      ]
+    new cdk.CfnOutput(this, "PipelineConsoleUrl", {
+      value: `https://${Stack.of(this).region}.console.aws.amazon.com/codesuite/codepipeline/pipelines/${pipeline.codePipeline.pipelineName}/view?region=${Stack.of(this).region}`,
     });
 
-    const deploymentStages = this.node.tryGetContext("deploymentStages");
-    
-    for (const [stage, settings] of Object.entries(deploymentStages)) { 
-      console.log(stage, JSON.stringify(settings));
-    }
-    // This is where we add the application stages
-    const staging = new ZoorlApplicationStage(this, `staging-${this.region}`, {
-      env: props.stagingEnv
-    });
-    const stagingApplicationStage = pipeline.addApplicationStage(staging);
-    stagingApplicationStage.addActions(
-
-      customactions.acceptanceTestsAction(pipeline, staging, lambdaArtifact)
-    );
+    new OrganizationsHelper()
+      .forEachStage((stageDetails) => {
+        const applicationStage = new ApplicationStage(this, stageDetails.name, {env: {account: stageDetails.accountId}});
+        const stage = pipeline.addApplicationStage(applicationStage);
+        stage.addActions(
+          customactions.pythonUnitTestsAction(lambdaArtifact),
+          customactions.acceptanceTestsAction(pipeline, applicationStage, lambdaArtifact)
+        );
+      });
   }
 }
