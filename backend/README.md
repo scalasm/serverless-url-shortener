@@ -9,7 +9,13 @@ The implementation follows the [AWS Activate Workshop](https://activate.workshop
 
 # Prerequisites
 
-You have setup your AWS organization according to instructions used in the [AWS Activate Workshop](https://activate.workshop.aws/) site.
+1. You have setup your AWS organization according to instructions used in the [AWS Activate Workshop](https://activate.workshop.aws/) site.
+
+2. You have created a [GitHub Connection](https://docs.aws.amazon.com/dtconsole/latest/userguide/connections-create-github.html) and configured its ARN as a secret value in AWS Secrets Manager:
+```
+aws --profile cicd secretsmanager create-secret --name GITHUB_CONNECTION_ARN --secret-string <YOUR-JUST-CRETED-CONNECTION-ARN>
+
+```
 
 # How to build
 

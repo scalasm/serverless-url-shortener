@@ -2,6 +2,8 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
+import * as codepipeline_actions from "@aws-cdk/aws-codepipeline-actions";
+import * as pipelines from "@aws-cdk/pipelines";
 import * as codepipeline from "@aws-cdk/aws-codepipeline";
 import * as iam from "@aws-cdk/aws-iam";
 import { CdkPipeline, ShellScriptAction } from "@aws-cdk/pipelines";
@@ -23,13 +25,9 @@ const PYTHON_PREREQUISITES_COMMANDS = [
  * @param sourceArtifact the source code 
  * @returns a new ShellScriptAction for running the tests
  */
-export function pythonUnitTestsAction(sourceArtifact: codepipeline.Artifact): ShellScriptAction {
-  return new ShellScriptAction({
-    actionName: "RunUnitTests",
-    // Acceptance tests code is in the ... source code, so we need the pipeline to unzip it for us in the working folder :)
-    additionalArtifacts: [
-      sourceArtifact
-    ],
+export function pythonUnitTestsAction(inputStep: pipelines.ShellStep): pipelines.ShellStep {
+  return new pipelines.ShellStep("RunUnitTests", {
+    input: inputStep,
     commands: [
       ...PYTHON_PREREQUISITES_COMMANDS,
       "pipenv run ./tests/run-unit-tests.sh"

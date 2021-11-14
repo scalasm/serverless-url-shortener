@@ -16,10 +16,10 @@ const app = new cdk.App();
 // If you want to support multiple environments, this is where to intervene
 const currentEnvironment = { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION }
 
-new ApplicationStack(app, "dev-application-stack", {
-  // This is the environment where the CI/CD pipeline will be actually created
-  env: currentEnvironment
-});
+// new ApplicationStack(app, "dev-application-stack", {
+//   // This is the environment where the CI/CD pipeline will be actually created
+//   env: currentEnvironment
+// });
 
 const pipelineStack = new ZoorlPipelineStack(app, "zoorl-pipeline-stack", {
   // This is the environment where the CI/CD pipeline will be actually created
@@ -40,4 +40,4 @@ cdk.Aspects.of(pipelineStack).add(new AddPermissionsBoundaryToRoles(permissionBo
 //   subdomain: stages["staging"]["subdomain"]
 // });
 
-app.synth();
+//app.synth();
