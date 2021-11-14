@@ -13,6 +13,9 @@ import { ApplicationStage } from "./application-stage";
  * Before running the build commands, we usually want to setup the dependencies: let's share the commands here.
  */
 const PYTHON_PREREQUISITES_COMMANDS = [
+  "pwd",
+  "ls -lh",
+  "cd backend/lambda",
   "python --version",
   "pipenv --version",
   "pipenv install",

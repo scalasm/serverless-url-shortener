@@ -41,19 +41,23 @@ export class ZoorlPipelineStack extends cdk.Stack {
     const synthStep = new pipelines.ShellStep('Synth', {
       input: source,
       commands: [
+        "cd backend",
         "npm ci", 
         "npm run cdk:synth"
       ]
     });
 
+    const codePipelineName = `${this.region}-zoorl-pipeline`;
+
     const codePipeline = new pipelines.CodePipeline(this, 'Pipeline', {
-      pipelineName: `${this.region}-zoorl-pipeline`,
+      pipelineName: codePipelineName,
       synth: synthStep,
       // We deploy to multiple accounts and they need to share the encryption key for the artifacts bucket
       crossAccountKeys: true,
       // We use docker to build our Lambda functions
       dockerEnabledForSynth: true,
       synthCodeBuildDefaults: {
+        // This pipeline will need to enumerate the accounts in the organization in order to synthesize the deployment stages.
         rolePolicy: [
           new iam.PolicyStatement({
               actions: [
@@ -66,56 +70,19 @@ export class ZoorlPipelineStack extends cdk.Stack {
       }
     });
 
-    // const pipeline = new pipelines.CodePipeline(this, "CICDPipeline", {
-    //   pipelineName: `${this.region}-zoorl-pipeline`,
-    //   // DO NOT COMMIT: it's only for local testing!
-    //   selfMutation: true,
-
-    //   cloudAssemblyArtifact,
-
-    //   // How it will be built and synthesized
-    //   synthAction: pipelines.SimpleSynthAction.standardNpmSynth({
-    //     sourceArtifact,
-    //     cloudAssemblyArtifact,
-    //     // Required when building Lambdas which uses Docker (our case)
-    //     // See https://docs.aws.amazon.com/cdk/api/latest/docs/pipelines-readme.html#cannot-connect-to-the-docker-daemon-at-unixvarrundockersock
-    //     environment: {
-    //       privileged: true,
-    //     },
-    //     subdirectory: "backend",
-    //     // For Typescript-based Lambdas We need a build step for traspiling
-    //     buildCommand: "npm run build",
-    //     rolePolicyStatements: [
-    //       new iam.PolicyStatement({
-    //           actions: [
-    //               "organizations:ListAccounts",
-    //               "organizations:ListTagsForResource"
-    //           ],
-    //           resources: ["*"],
-    //       }),
-    //   ],
-    //     additionalArtifacts: [
-    //       {
-    //         directory: "lambda",
-    //         artifact: lambdaArtifact
-    //       }
-    //     ]
-    //   }),
-    // });
-
-    // new cdk.CfnOutput(this, "PipelineConsoleUrl", {
-    //   value: `https://${cdk.Stack.of(this).region}.console.aws.amazon.com/codesuite/codepipeline/pipelines/${codePipeline.pipeline.pipelineName}/view?region=${cdk.Stack.of(this).region}`,
-    // });
-
     new OrganizationsHelper()
       .forEachStage((stageDetails) => {
-        const applicationStage = new ApplicationStage(this, stageDetails.name, {env: {account: stageDetails.accountId}});
-        const stage = codePipeline.addStage(applicationStage, {
+        codePipeline.addStage(
+          new ApplicationStage(this, stageDetails.name, {env: {account: stageDetails.accountId}}), {
           pre: [
             customactions.pythonUnitTestsAction(synthStep)
           ]
         });
 //        customactions.acceptanceTestsAction(pipeline, applicationStage, lambdaArtifact)
+    });
+
+    new cdk.CfnOutput(this, "PipelineConsoleUrl", {
+      value: `https://${cdk.Stack.of(this).region}.console.aws.amazon.com/codesuite/codepipeline/pipelines/${codePipelineName}/view?region=${cdk.Stack.of(this).region}`,
     });
   }
 }
